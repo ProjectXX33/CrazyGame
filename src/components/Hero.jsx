@@ -5,6 +5,55 @@ import { useShop, EGP } from '../context.js'
 import { CoverArt } from './UI.jsx'
 import heroImgDark from '../assets/herosection.png'
 import heroImgLight from '../assets/herosectionwhite.png'
+import switchSvg from '../assets/background/nintendo-switch-svgrepo-com.svg'
+import switch2Svg from '../assets/background/nintendo-switch2-svgrepo-com.svg'
+import playstationSvg from '../assets/background/playstation-svgrepo-com.svg'
+
+export function getPlatformLogo(pl) {
+  const normalized = String(pl).toLowerCase().trim()
+  if (normalized === 'switch') return switchSvg
+  if (normalized === 'switch 2') return switch2Svg
+  if (normalized === 'ps4' || normalized === 'ps5' || normalized.includes('playstation')) return playstationSvg
+  return null
+}
+
+export function getPlatformChipStyle(pl) {
+  const normalized = String(pl).toLowerCase().trim()
+  if (normalized === 'switch') {
+    return {
+      background: '#e60012',
+      logoFilter: 'brightness(0) invert(1)',
+      color: '#ffffff',
+    }
+  }
+  if (normalized === 'switch 2') {
+    return {
+      background: '#cc0000',
+      logoFilter: 'brightness(0) invert(1)',
+      color: '#ffffff',
+    }
+  }
+  if (normalized === 'ps4') {
+    return {
+      background: '#003087',
+      logoFilter: 'brightness(0) invert(1)',
+      color: '#ffffff',
+    }
+  }
+  if (normalized === 'ps5') {
+    return {
+      background: '#ffffff',
+      logoFilter: 'brightness(0)',
+      color: '#000000',
+      border: '1px solid rgba(0,0,0,0.15)',
+    }
+  }
+  return {
+    background: 'oklch(1 0 0 / 0.12)',
+    logoFilter: 'brightness(0) invert(1)',
+    color: '#ffffff',
+  }
+}
 
 function CustomImageHero({ ci }) {
   const shop = useShop()
@@ -246,7 +295,35 @@ function CarouselHero({ featuredSlides, heroSettings }) {
 
                       <div className="hero-platchips rise" style={{ animationDelay: '.26s' }}>
                         <span className="faint" style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', alignSelf: 'center', whiteSpace: 'nowrap' }}>Available on</span>
-                        {(p.platforms || [p.platform]).filter(Boolean).map(pl => <span key={pl} className="plat" style={{ background: 'oklch(1 0 0 / 0.12)' }}>{pl}</span>)}
+                        {(p.platforms || [p.platform]).filter(Boolean).map(pl => {
+                          const logo = getPlatformLogo(pl)
+                          const chipStyle = getPlatformChipStyle(pl)
+                          return (
+                            <span key={pl} className="plat" style={{
+                              background: chipStyle.background,
+                              color: chipStyle.color,
+                              border: chipStyle.border || 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minHeight: '34px',
+                              padding: logo ? '6px 14px' : '6px 16px',
+                              borderRadius: '8px',
+                            }}>
+                              {logo ? (
+                                <img src={logo} alt={pl} style={{ height: '18px', width: 'auto', objectFit: 'contain', filter: chipStyle.logoFilter, opacity: 0.95 }} />
+                              ) : (
+                                pl
+                              )}
+                            </span>
+                          )
+                        })}
+                      </div>
+
+                      <div className="hero-mobile-art rise" style={{ animationDelay: '.28s' }}>
+                        <div className="hero-art-card">
+                          <CoverArt p={p} big />
+                        </div>
                       </div>
 
                       {p.price ? (
@@ -258,8 +335,9 @@ function CarouselHero({ featuredSlides, heroSettings }) {
                       ) : null}
 
                       <div className="hero-cta rise" style={{ animationDelay: '.36s' }}>
-                        <button className="btn btn-primary btn-lg" onClick={() => shop.addToCart(p.id)}>
-                          <Icon name="cart" size={19} /> {tags.includes('upcoming') ? 'Pre-order' : 'Add to cart'}
+                        <button className="btn btn-primary btn-lg" onClick={() => shop.addToCart(p.id)}
+                          disabled={!p.price} style={!p.price ? { opacity: 0.55 } : undefined}>
+                          <Icon name="cart" size={19} /> {!p.price ? 'Coming soon' : 'Add to cart'}
                         </button>
                         <button className="btn btn-line btn-lg" onClick={() => shop.goProduct(p.id)}>View details</button>
                       </div>

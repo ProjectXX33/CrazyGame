@@ -154,6 +154,10 @@ export function ProductCard({ p, w }) {
             <button className="btn btn-primary btn-sm pcard-add" onClick={(e) => { e.stopPropagation(); shop.goProduct(p.id) }}>
               <Icon name="arrowR" size={16} /> Choose amount
             </button>
+          ) : !p.price ? (
+            <button className="btn btn-line btn-sm pcard-add" onClick={(e) => { e.stopPropagation(); shop.goProduct(p.id) }}>
+              <Icon name="check" size={16} /> Coming soon
+            </button>
           ) : (
             <button className="btn btn-primary btn-sm pcard-add" onClick={(e) => { e.stopPropagation(); shop.addToCart(p.id) }}>
               <Icon name="cart" size={16} /> Add to cart

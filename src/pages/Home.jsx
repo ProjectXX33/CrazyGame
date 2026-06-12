@@ -10,14 +10,20 @@ import switch2Svg from '../assets/background/nintendo-switch2-svgrepo-com.svg'
 import playstationSvg from '../assets/background/playstation-svgrepo-com.svg'
 
 function Marquee() {
-  const items = [
-    ['truck', 'Free delivery over EGP 1,500'],
-    ['shield', '100% genuine sealed copies'],
-    ['bolt', 'Instant digital code delivery'],
-    ['tag', 'Price-match on new releases'],
-    ['gift', 'Gift wrapping available'],
-    ['check', 'Cash on delivery across Egypt'],
-  ]
+  const shop = useShop()
+  // Dashboard-controlled items; fall back to defaults if unset/empty.
+  const configured = (shop.siteSettings?.marqueeItems || [])
+    .filter(it => it && it.text)
+  const items = configured.length
+    ? configured.map(it => [it.icon || 'check', it.text])
+    : [
+        ['truck', 'Free delivery over EGP 1,500'],
+        ['shield', '100% genuine sealed copies'],
+        ['bolt', 'Instant digital code delivery'],
+        ['tag', 'Price-match on new releases'],
+        ['gift', 'Gift wrapping available'],
+        ['check', 'Cash on delivery across Egypt'],
+      ]
   const row = [...items, ...items]
   return (
     <div className="marquee">

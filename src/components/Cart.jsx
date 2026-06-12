@@ -280,23 +280,37 @@ export function CartPage() {
               <h3 style={{ margin: '26px 0 14px' }}>Payment</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  ['cod',       'Cash on delivery'],
-                  ['card',      'Credit / debit card'],
-                  ['fawry',     'Fawry / Meeza'],
-                  ['instapay',  'Instapay'],
-                ].map(([val, m]) => (
-                  <label key={val} className={'fopt' + (form.payment_method === val ? ' on' : '')}
-                    style={{ border: '1px solid var(--border)', borderRadius: 11, padding: '12px 14px', margin: 0, cursor: 'pointer' }}
-                    onClick={() => setF({ payment_method: val })}>
-                    <span className="fbox"
-                      style={form.payment_method === val
-                        ? null
-                        : { background: 'transparent', borderColor: 'var(--border)', color: 'transparent' }}>
-                      {form.payment_method === val ? <Icon name="check" size={13} /> : null}
-                    </span>
-                    <span style={{ color: 'var(--text)' }}>{m}</span>
-                  </label>
-                ))}
+                  ['cod',       'Cash on delivery',    true],
+                  ['card',      'Credit / debit card', true],
+                  ['fawry',     'Fawry / Meeza',       true],
+                  ['instapay',  'Instapay',            true],
+                ].map(([val, m, comingSoon]) => {
+                  const active = form.payment_method === val
+                  return (
+                    <label key={val} className={'fopt' + (active ? ' on' : '') + (comingSoon ? ' disabled' : '')}
+                      style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: 11,
+                        padding: '12px 14px',
+                        margin: 0,
+                        cursor: comingSoon ? 'not-allowed' : 'pointer',
+                        opacity: comingSoon ? 0.5 : 1,
+                      }}
+                      onClick={() => { if (!comingSoon) setF({ payment_method: val }) }}>
+                      {!comingSoon && (
+                        <span className="fbox"
+                          style={active
+                            ? null
+                            : { background: 'transparent', borderColor: 'var(--border)', color: 'transparent' }}>
+                          {active ? <Icon name="check" size={13} /> : null}
+                        </span>
+                      )}
+                      <span style={{ color: 'var(--text)' }}>
+                        {m} {comingSoon && <span style={{ fontSize: 12, color: 'var(--text-faint)', marginLeft: 8 }}>(Coming soon)</span>}
+                      </span>
+                    </label>
+                  )
+                })}
               </div>
               {orderErr && (
                 <div style={{
@@ -319,8 +333,8 @@ export function CartPage() {
             <button className="btn btn-primary btn-lg btn-block" onClick={() => setStep(1)}>Continue to checkout <Icon name="arrowR" size={18} /></button>
           ) : (
             <>
-              <button className="btn btn-primary btn-lg btn-block" disabled={placing} onClick={placeOrder}>
-                {placing ? 'Placing order…' : <>Place order <Icon name="check" size={18} /></>}
+              <button className="btn btn-primary btn-lg btn-block" disabled={true}>
+                Coming soon
               </button>
               <button className="btn btn-line btn-block" style={{ marginTop: 10 }} onClick={() => setStep(0)}>Back to cart</button>
             </>

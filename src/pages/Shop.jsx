@@ -56,6 +56,7 @@ export default function Shop() {
   useEffect(() => { setMaxPrice(priceCeiling) }, [priceCeiling])
   const [sort, setSort] = useState(params.sort || 'featured')
   const [q] = useState(params.q || '')
+  const [filtersOpen, setFiltersOpen] = useState(false)  // mobile filter drawer
 
   useEffect(() => {
     setPlatSel(params.platform ? [params.platform] : [])
@@ -127,8 +128,14 @@ export default function Shop() {
         </div>
       </div>
 
+      {/* Mobile-only toggle to collapse/expand the filter panel */}
+      <button className="filter-toggle btn btn-line" onClick={() => setFiltersOpen(o => !o)}>
+        <Icon name="filter" size={16} /> Filters{activeChips.length ? ` (${activeChips.length})` : ''}
+        <Icon name="chevD" size={15} style={{ transform: filtersOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+      </button>
+
       <div className="shop-layout">
-        <aside className="filter-panel">
+        <aside className={'filter-panel' + (filtersOpen ? ' open' : '')}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, fontFamily: 'var(--font-display)', fontWeight: 700 }}><Icon name="filter" size={18} /> Filters</div>
             {activeChips.length ? <button className="faint" style={{ fontSize: 13, fontWeight: 600 }} onClick={clearAll}>Clear</button> : null}

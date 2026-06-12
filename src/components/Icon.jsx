@@ -4,7 +4,7 @@ const P = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLineca
 const paths = {
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.2-3.2" /></>,
   cart: <><path d="M3 4h2l2.2 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L21 8H6" /><circle cx="9.5" cy="20.5" r="1.4" /><circle cx="17.5" cy="20.5" r="1.4" /></>,
-  heart: <path d="M12 20s-7-4.4-9.3-8.5C1 8.4 2.5 5 5.8 5c2 0 3.2 1.1 4.2 2.4C11 6.1 12.2 5 14.2 5 17.5 5 19 8.4 17.3 11.5 15 15.6 12 20 12 20Z" />,
+  heart: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />,
   user: <><circle cx="12" cy="8" r="3.6" /><path d="M5 20c.7-3.5 3.4-5.5 7-5.5s6.3 2 7 5.5" /></>,
   chevL: <path d="m14.5 6-6 6 6 6" />,
   chevR: <path d="m9.5 6 6 6-6 6" />,
@@ -31,6 +31,7 @@ const paths = {
   gift: <><rect x="3.5" y="9" width="17" height="12" rx="1.5" /><path d="M3.5 13h17M12 9v12M12 9S10.5 4 7.8 5.2C6 6 7 9 9 9m3 0s1.5-5 4.2-3.8C18 6 17 9 15 9" /></>,
   spark: <path d="M12 3v6m0 6v6m9-9h-6m-6 0H3m13.5-6.5-3 3m-3 3-3 3m12 0-3-3m-3-3-3-3" />,
   download: <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" />,
+  facebook: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />,
 }
 
 export default function Icon({ name, size, style, className }) {

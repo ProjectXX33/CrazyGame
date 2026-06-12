@@ -2,8 +2,8 @@
 import { createTheme } from '@mui/material/styles'
 
 export const COLORS = {
-  primary:   { main: '#e91e63', light: '#ec407a', dark: '#ad1457' },   // pink
-  info:      { main: '#1A73E8', light: '#42a5f5', dark: '#1565c0' },
+  primary:   { main: '#ff8c00', light: '#ffa726', dark: '#f52200' },   // orange-red primary
+  info:      { main: '#ff5c00', light: '#ff8c00', dark: '#cc4a00' },   // orange accent
   success:   { main: '#4caf50', light: '#66bb6a', dark: '#388e3c' },
   warning:   { main: '#fb8c00', light: '#ffa726', dark: '#f57c00' },
   error:     { main: '#F44335', light: '#ef5350', dark: '#c62828' },
@@ -12,8 +12,8 @@ export const COLORS = {
 }
 
 export const gradients = {
-  primary: 'linear-gradient(195deg, #ec407a, #d81b60)',
-  info:    'linear-gradient(195deg, #49a3f1, #1A73E8)',
+  primary: 'linear-gradient(195deg, #ff8c00, #f52200)',
+  info:    'linear-gradient(195deg, #ff8c00, #f52200)',
   success: 'linear-gradient(195deg, #66BB6A, #43A047)',
   warning: 'linear-gradient(195deg, #FFA726, #FB8C00)',
   error:   'linear-gradient(195deg, #EF5350, #E53935)',
@@ -22,14 +22,14 @@ export const gradients = {
 
 export const mdTheme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: COLORS.primary,
     info:    COLORS.info,
     success: COLORS.success,
     warning: COLORS.warning,
     error:   COLORS.error,
-    background: { default: COLORS.grey[200], paper: '#ffffff' },
-    text: { primary: COLORS.dark.main, secondary: COLORS.dark.light },
+    background: { default: '#0c061a', paper: '#120a22' },
+    text: { primary: '#ffffff', secondary: 'rgba(255, 255, 255, 0.7)' },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',

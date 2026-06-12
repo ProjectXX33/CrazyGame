@@ -40,6 +40,15 @@ export const DEFAULT_SETTINGS = {
     multiplier: 0.2,
     label: 'Crazy Points',
   },
+  // Scrolling "trust" strip under the hero. Editable from the dashboard.
+  marqueeItems: [
+    { icon: 'truck', text: 'Free delivery over EGP 1,500' },
+    { icon: 'shield', text: '100% genuine sealed copies' },
+    { icon: 'bolt', text: 'Instant digital code delivery' },
+    { icon: 'tag', text: 'Price-match on new releases' },
+    { icon: 'gift', text: 'Gift wrapping available' },
+    { icon: 'check', text: 'Cash on delivery across Egypt' },
+  ],
 }
 
 function deepMerge(base, override) {

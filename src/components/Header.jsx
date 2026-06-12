@@ -3,13 +3,14 @@ import { useState, useRef, useEffect } from 'react'
 import Icon from './Icon.jsx'
 import { useShop, EGP } from '../context.js'
 import { CoverArt } from './UI.jsx'
+import MobileNav from './MobileNav.jsx'
 
 import logoImg from '../assets/Crazy Game No Background.png'
 
 function Logo({ onClick }) {
   return (
     <div className="logo" onClick={onClick} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-      <img src={logoImg} alt="CrazyGame" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
+      <img className="logo-img" src={logoImg} alt="CrazyGame" />
     </div>
   )
 }
@@ -85,6 +86,7 @@ export default function Header() {
   const shop = useShop()
   const { platforms, genres } = shop
   const [searchOpen, setSearchOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <header className="header">
@@ -174,10 +176,10 @@ export default function Header() {
           <button className="iconbtn" onClick={() => setSearchOpen(!searchOpen)} title="Search">
             <Icon name="search" />
           </button>
-          <button className="iconbtn" onClick={shop.toggleTheme} title="Toggle theme">
+          <button className="iconbtn desktop-only" onClick={shop.toggleTheme} title="Toggle theme">
             <Icon name={shop.theme === 'dark' ? 'sun' : 'moon'} />
           </button>
-          <button className="iconbtn" onClick={() => shop.goWishlist()} title="Wishlist">
+          <button className="iconbtn desktop-only" onClick={() => shop.goWishlist()} title="Wishlist">
             <Icon name="heart" />
             {shop.wish.length ? <span className="bubble accent">{shop.wish.length}</span> : null}
           </button>
@@ -186,14 +188,14 @@ export default function Header() {
             {shop.cartCount ? <span className="bubble">{shop.cartCount}</span> : null}
           </button>
           {shop.isAdmin && (
-            <button className="btn btn-primary btn-sm" onClick={() => shop.goDashboard()}
+            <button className="btn btn-primary btn-sm desktop-only" onClick={() => shop.goDashboard()}
               title="Admin dashboard"
               style={{ padding: '8px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
               <Icon name="bolt" size={14} /> Admin
             </button>
           )}
           {shop.user ? (
-            <button className="iconbtn" onClick={() => shop.goAccount()} title="My account"
+            <button className="iconbtn desktop-only" onClick={() => shop.goAccount()} title="My account"
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', width: 'auto' }}>
               <span style={{
                 width: 28, height: 28, borderRadius: '50%', background: 'var(--accent-bright)',
@@ -201,15 +203,17 @@ export default function Header() {
               }}>{(shop.user.email || '?')[0].toUpperCase()}</span>
             </button>
           ) : (
-            <button className="iconbtn" onClick={() => shop.goLogin()} title="Sign in">
+            <button className="iconbtn desktop-only" onClick={() => shop.goLogin()} title="Sign in">
               <Icon name="user" />
             </button>
           )}
-          <button className="iconbtn mobile-only" onClick={() => shop.goShop({})} title="Menu" style={{ display: 'none' }}>
+          <button className="iconbtn mobile-only" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Open menu">
             <Icon name="menu" />
           </button>
         </div>
       </div>
+
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="sub-header" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface-sunken)', padding: '8px 0' }}>
         <div className="wrap" style={{ display: 'flex', gap: 24, fontSize: 13, fontWeight: 700, alignItems: 'center' }}>
@@ -241,7 +245,7 @@ export default function Header() {
         background: 'var(--surface)', 
         boxShadow: searchOpen ? 'var(--shadow-pop)' : 'none',
       }}>
-        <div style={{ overflow: 'hidden' }}>
+        <div style={{ overflow: searchOpen ? 'visible' : 'hidden' }}>
           <div style={{ padding: '12px 0', borderTop: '1px solid var(--border)' }}>
             <div className="wrap">
               <Search isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

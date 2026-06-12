@@ -6,6 +6,7 @@ import { useShop, EGP } from '../context.js'
 import { isYouTube, youtubeThumb, youtubeEmbed } from '../upload.js'
 import { fetchProductDescription } from '../supabase.js'
 import { useSeo, productJsonLd, breadcrumbJsonLd, plainText, SITE } from '../seo.js'
+import { getPlatformLogo, getPlatformChipStyle } from '../components/Hero.jsx'
 
 // Normalize legacy descriptions: imported rows often contain literal "\n"
 // instead of real newlines. Replace with <br/> so they render as line breaks.
@@ -118,6 +119,8 @@ export default function Product({ slug }) {
   const hasVariants = Array.isArray(p.variants) && p.variants.length > 0
   const selectedVariant = hasVariants ? p.variants.find(v => v.id === variantId) || p.variants[0] : null
   const displayPrice = selectedVariant ? selectedVariant.price : p.price
+  // Physical item with no price set → "Coming soon", not purchasable yet.
+  const isComingSoon = !isDigital && (!displayPrice || displayPrice <= 0)
 
   function add() {
     shop.addToCart(p.id, isDigital, qty, selectedVariant || null)
@@ -125,7 +128,7 @@ export default function Product({ slug }) {
   }
 
   return (
-    <div className="page wrap" style={{ paddingTop: 28, paddingBottom: 60 }}>
+    <div className="page wrap pdp-page" style={{ paddingTop: 28, paddingBottom: 60 }}>
       <div className="crumb">
         <a onClick={() => shop.goHome()}>Home</a> <Icon name="chevR" />
         {isDigital ? (
@@ -182,7 +185,7 @@ export default function Product({ slug }) {
         </div>
 
         <div className="pdp-info">
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+          <div className="pdp-badges">
             {isDigital && <span className="badge badge-new" style={{ background: 'var(--accent)', color: '#000' }}><Icon name="code" size={12} /> Instant Delivery</span>}
             {p.tags?.includes('new') ? <span className="badge badge-new">New</span> : null}
             {p.tags?.includes('preowned') ? <span className="badge" style={{ background: '#f59e0b', color: '#000' }}>Pre-Owned</span> : null}
@@ -191,12 +194,12 @@ export default function Product({ slug }) {
             {p.tags?.includes('upcoming') ? <span className="badge badge-soon">Pre-order</span> : null}
           </div>
 
-          <div className="muted" style={{ fontSize: 13.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' }}>
+          <div className="muted pdp-subtitle">
             {isDigital ? 'Digital Code / Top-Up' : `${p.publisher || p.brand || 'CrazyGame'} · ${p.genre}`}
           </div>
-          <h1 style={{ fontSize: 'clamp(28px,3.4vw,44px)', margin: '8px 0 14px', lineHeight: 1 }}>{p.title}</h1>
+          <h1 className="pdp-title">{p.title}</h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 22, flexWrap: 'wrap' }}>
+          <div className="pdp-meta-row">
             <Stars value={p.rating} size={17} />
             <span className="muted" style={{ fontSize: 14 }}>{p.reviews} reviews</span>
             {(() => {
@@ -231,7 +234,7 @@ export default function Product({ slug }) {
             })()}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8 }}>
+          <div className="pdp-price-row">
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 38, color: p.was ? 'var(--primary-bright)' : 'var(--text)' }}>
               {displayPrice ? EGP(displayPrice) : 'Coming soon'}
             </span>
@@ -239,9 +242,9 @@ export default function Product({ slug }) {
           </div>
 
           {hasVariants && (
-            <div style={{ marginBottom: 22 }}>
-              <div className="muted" style={{ fontSize: 13, fontWeight: 600, marginBottom: 9 }}>Denomination</div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="pdp-option-group">
+              <div className="muted pdp-option-label">Denomination</div>
+              <div className="pdp-chips">
                 {p.variants.map(v => {
                   const active = selectedVariant?.id === v.id
                   return (
@@ -280,25 +283,56 @@ export default function Product({ slug }) {
             const points = Math.round(Number(earnFrom) * Number(loyalty.multiplier || 0))
             if (points <= 0) return <div style={{ marginBottom: 22 }}></div>
             return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 22, color: 'var(--accent)', fontSize: 14, fontWeight: 700 }}>
+              <div className="pdp-loyalty-row">
                 <Icon name="star" size={15} /> Earn {points.toLocaleString()} {loyalty.label || 'Crazy Points'}
               </div>
             )
           })()}
 
-          <div style={{ marginBottom: 20 }}>
+          <div className="pdp-option-group" style={{ marginBottom: 20 }}>
             {isDigital ? (
-              <div className="muted" style={{ fontSize: 13, fontWeight: 600, marginBottom: 9 }}>Region / Type</div>
+              <div className="muted pdp-option-label">Region / Type</div>
             ) : (
-              <div className="muted" style={{ fontSize: 13, fontWeight: 600, marginBottom: 9 }}>Platform</div>
+              <div className="muted pdp-option-label">Platform</div>
             )}
-            <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
+            <div className="pdp-chips" style={{ gap: 9 }}>
               {isDigital ? (
                 <button className="chip active">{p.tier || 'Standard'}</button>
               ) : (
-                p.platforms?.map(pl => (
-                  <button key={pl} className={'chip' + (plat === pl ? ' active' : '')} onClick={() => setPlat(pl)}>{pl}</button>
-                ))
+                p.platforms?.map(pl => {
+                  const active = plat === pl
+                  const logo = getPlatformLogo(pl)
+                  const chipStyle = getPlatformChipStyle(pl)
+                  const inactiveFilter = shop.theme === 'dark' ? 'brightness(0) invert(1)' : 'brightness(0)'
+                  
+                  return (
+                    <button key={pl}
+                      className={'chip' + (active ? ' active' : '')}
+                      onClick={() => setPlat(pl)}
+                      style={active ? {
+                        background: chipStyle.background,
+                        color: chipStyle.color,
+                        border: chipStyle.border || `1px solid ${chipStyle.background}`,
+                      } : {
+                        background: 'var(--surface-2)',
+                        borderColor: 'var(--border-soft)',
+                      }}>
+                      {logo ? (
+                        <img src={logo} alt={pl}
+                          style={{
+                            height: '16px',
+                            width: 'auto',
+                            objectFit: 'contain',
+                            filter: active ? chipStyle.logoFilter : inactiveFilter,
+                            opacity: active ? 0.95 : 0.6,
+                            transition: 'all 0.2s',
+                          }} />
+                      ) : (
+                        pl
+                      )}
+                    </button>
+                  )
+                })
               )}
             </div>
           </div>
@@ -311,25 +345,26 @@ export default function Product({ slug }) {
             const safeQty = Math.min(Math.max(1, qty), hardCap)
             if (safeQty !== qty) setTimeout(() => setQty(safeQty), 0)
             const atMax = qty >= hardCap
+            const blocked = isSoldOut || isComingSoon
 
             return (
               <>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 18 }}>
+                <div className="pdp-actions-row">
                   <div className="qty">
-                    <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={isSoldOut || qty <= 1}><Icon name="minus" size={15} /></button>
+                    <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={blocked || qty <= 1}><Icon name="minus" size={15} /></button>
                     <span>{qty}</span>
-                    <button onClick={() => setQty(q => Math.min(hardCap, q + 1))} disabled={isSoldOut || atMax}><Icon name="plus" size={15} /></button>
+                    <button onClick={() => setQty(q => Math.min(hardCap, q + 1))} disabled={blocked || atMax}><Icon name="plus" size={15} /></button>
                   </div>
-                  <button className="btn btn-primary btn-lg" style={{ flex: 1, opacity: isSoldOut ? 0.55 : 1 }} onClick={add} disabled={isSoldOut}>
-                    {added ? <><Icon name="check" size={19} /> Added!</> : <><Icon name="cart" size={19} /> {isSoldOut ? 'Sold out' : (p.tags?.includes('upcoming') ? 'Pre-order' : 'Add to cart')}</>}
+                  <button className="btn btn-primary btn-lg" style={{ flex: 1, opacity: blocked ? 0.55 : 1 }} onClick={add} disabled={blocked}>
+                    {added ? <><Icon name="check" size={19} /> Added!</> : <><Icon name="cart" size={19} /> {isSoldOut ? 'Sold out' : isComingSoon ? 'Coming soon' : 'Add to cart'}</>}
                   </button>
                   <button className="iconbtn" style={{ width: 52, height: 52, ...(wished ? { color: 'var(--primary-bright)', borderColor: 'var(--primary)' } : {}) }} onClick={() => shop.toggleWish(p.id)}>
                     <Icon name="heart" size={21} style={wished ? { fill: 'var(--primary)' } : null} />
                   </button>
                 </div>
-                <button className="btn btn-accent btn-lg btn-block" disabled={isSoldOut}
-                  style={{ marginBottom: 24, opacity: isSoldOut ? 0.55 : 1 }}
-                  onClick={() => { shop.addToCart(p.id, isDigital, qty, selectedVariant || null); shop.goCart() }}>
+                <button className="btn btn-accent btn-lg btn-block" disabled={blocked}
+                  style={{ marginBottom: 24, opacity: blocked ? 0.55 : 1 }}
+                  onClick={() => { shop.addToCart(p.id, isDigital, qty, selectedVariant || null, { openDrawer: false }); shop.goCart() }}>
                   <Icon name="bolt" size={18} /> Buy it now
                 </button>
               </>
@@ -440,6 +475,26 @@ export default function Product({ slug }) {
       </div>
 
       {related.length ? <Rail eyebrow="You might also like" title="Related games" items={related} /> : null}
+
+      {/* Mobile-only sticky buy bar */}
+      {(() => {
+        const stockLimit = p.stock == null ? Infinity : Math.max(0, Number(p.stock) || 0)
+        const isSoldOut = stockLimit === 0 && p.stock != null
+        const hardCap = isFinite(stockLimit) ? stockLimit : 99
+        const blocked = isSoldOut || isComingSoon
+        return (
+          <div className="pdp-sticky-bar">
+            <div className="qty">
+              <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={blocked || qty <= 1}><Icon name="minus" size={15} /></button>
+              <span>{qty}</span>
+              <button onClick={() => setQty(q => Math.min(hardCap, q + 1))} disabled={blocked || qty >= hardCap}><Icon name="plus" size={15} /></button>
+            </div>
+            <button className="btn btn-primary" style={{ flex: 1, opacity: blocked ? 0.55 : 1 }} onClick={add} disabled={blocked}>
+              {added ? <><Icon name="check" size={18} /> Added!</> : <><Icon name="cart" size={18} /> {isSoldOut ? 'Sold out' : isComingSoon ? 'Coming soon' : `Add · ${EGP(displayPrice)}`}</>}
+            </button>
+          </div>
+        )
+      })()}
     </div>
   )
 }

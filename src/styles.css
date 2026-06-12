@@ -80,7 +80,7 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
 
 body {
   margin: 0;
@@ -91,6 +91,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  width: 100%;
 }
 
 #root { min-height: 100vh; display: flex; flex-direction: column; position: relative; }
@@ -165,12 +166,13 @@ img { display: block; max-width: 100%; }
 
 /* icon button */
 .iconbtn {
-  width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; padding: 0;
   background: var(--surface-2); border: 1px solid var(--border-soft); color: var(--text);
   transition: all .2s var(--ease); position: relative;
 }
 .iconbtn:hover { background: var(--surface-3); color: var(--primary-bright); transform: translateY(-1px); }
-.iconbtn svg { width: 20px; height: 20px; }
+.iconbtn svg { width: 20px; height: 20px; display: block; }
 
 /* count bubble */
 .bubble {
@@ -284,6 +286,11 @@ img { display: block; max-width: 100%; }
   .wrap { padding: 0 18px; }
   .rail-track { padding: 6px 18px 22px; margin: 0 -18px; }
   .section { padding: 44px 0; }
+  /* 16px inputs stop iOS Safari from auto-zooming on focus */
+  .search-box input,
+  .form-group input,
+  .form-group input[type="text"],
+  .form-group input[type="tel"] { font-size: 16px; }
 }
 
 @keyframes loadingBar {

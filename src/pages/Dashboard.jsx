@@ -55,6 +55,7 @@ import FiberNewIcon        from '@mui/icons-material/FiberNew'
 import playstationLogo from '../assets/background/playstation-svgrepo-com.svg'
 import switch1Logo     from '../assets/background/nintendo-switch-svgrepo-com.svg'
 import switch2Logo     from '../assets/background/nintendo-switch2-svgrepo-com.svg'
+import heroBgImg       from '../assets/herosection.png'
 import { useShop, EGP } from '../context.js'
 import { useSeo } from '../seo.js'
 import { saveSettings, uploadHeroImage, DEFAULT_SETTINGS } from '../settings.js'
@@ -129,24 +130,28 @@ function PlatformBadge({ product, platform }) {
 // Shared pill-field style — used for toolbar search/filter inputs on gradient panels
 const pillFieldSx = (width) => ({
   width,
-  background: '#fff',
+  background: 'rgba(0, 0, 0, 0.25)',
   borderRadius: '20px',
-  boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+  boxShadow: 'none',
+  border: '1px solid rgba(255, 255, 255, 0.15)',
+  boxSizing: 'border-box',
   '& .MuiOutlinedInput-root': {
-    borderRadius: '20px', height: 40, paddingLeft: 1.5,
-    color: '#344767',
+    borderRadius: '20px', height: 38, paddingLeft: 1.5,
+    color: '#ffffff',
   },
   '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
   '& .MuiInputBase-input': {
-    py: 0, fontSize: 13.5, fontWeight: 500, color: '#344767',
-    '&::placeholder': { color: '#9ba3b4', opacity: 1 },
+    py: 0, fontSize: 13.5, fontWeight: 500, color: '#ffffff',
+    '&::placeholder': { color: 'rgba(255, 255, 255, 0.65)', opacity: 1 },
   },
   '& .MuiSelect-select': {
     py: 0, pl: 0.5, fontSize: 13.5, fontWeight: 600,
-    color: '#344767 !important',
-    display: 'flex', alignItems: 'center', minHeight: '40px !important',
+    color: '#ffffff !important',
+    display: 'flex', alignItems: 'center', minHeight: '38px !important',
   },
-  '& .MuiSelect-select span': { color: '#344767 !important' },
+  '& .MuiSelect-select span': { color: '#ffffff !important' },
+  '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.7) !important' },
+  '& .MuiInputAdornment-root svg': { color: 'rgba(255, 255, 255, 0.7) !important' },
 })
 
 // ── Login (gradient brand panel like MD2 React auth pages) ──────────────────
@@ -170,31 +175,108 @@ function LoginScreen({ onAuthed }) {
   return (
     <Box sx={{
       minHeight: '100vh', display: 'grid', placeItems: 'center',
-      background: 'linear-gradient(195deg, #49a3f1, #1A73E8)', p: 3,
+      position: 'relative',
+      backgroundImage: `url(${heroBgImg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      p: 3,
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(ellipse 80% 100% at 50% 50%, rgba(30,15,60,0.5) 0%, rgba(6,3,15,0.92) 100%)',
+        zIndex: 1,
+      },
+      '& > *': {
+        position: 'relative',
+        zIndex: 2,
+      }
     }}>
-      <Card sx={{ width: 'min(420px, 100%)', overflow: 'visible' }}>
+      <Card sx={{
+        width: 'min(420px, 100%)',
+        overflow: 'visible',
+        background: 'rgba(12, 6, 26, 0.65)',
+        backdropFilter: 'blur(20px) saturate(1.8)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 40px 0 rgba(0, 0, 0, 0.6)',
+        borderRadius: '20px',
+      }}>
         <Box sx={{
-          mt: -3, mx: 2, py: 3, borderRadius: '12px',
-          background: gradients.info, color: '#fff', textAlign: 'center',
-          boxShadow: '0 4px 20px 0 rgba(26,115,232,.4)',
+          mt: -3, mx: 2, py: 3, borderRadius: '14px',
+          background: 'linear-gradient(135deg, #ff8c00 0%, #f52200 100%)',
+          color: '#fff', textAlign: 'center',
+          boxShadow: '0 6px 20px rgba(245, 34, 0, 0.4)',
         }}>
-          <Typography variant="h4" sx={{ color: '#fff', mb: 0.5 }}>Sign in</Typography>
-          <Typography variant="body2" sx={{ color: '#fff', opacity: 0.85 }}>
+          <Typography variant="h4" sx={{ color: '#fff', mb: 0.5, fontFamily: 'var(--font-display)', fontWeight: 700 }}>Sign in</Typography>
+          <Typography variant="body2" sx={{ color: '#fff', opacity: 0.85, fontWeight: 500 }}>
             Crazy Game Admin
           </Typography>
         </Box>
-        <CardContent component="form" onSubmit={submit} sx={{ pt: 4, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="Email" type="email" required fullWidth size="small"
-            value={email} onChange={e => setEmail(e.target.value)} />
-          <TextField label="Password" type="password" required fullWidth size="small"
-            value={pw} onChange={e => setPw(e.target.value)} />
-          {err && <Alert severity="error" sx={{ py: 0 }}>{err}</Alert>}
-          <Button type="submit" disabled={busy} variant="contained" size="large" sx={{
-            background: gradients.info, color: '#fff', mt: 1,
-            '&:hover': { background: gradients.info, opacity: 0.92 },
-          }}>{busy ? 'Signing in…' : 'Sign in'}</Button>
-          <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center', mt: 1 }}>
-            Admins are managed in the <code>admins</code> Supabase table
+        <CardContent component="form" onSubmit={submit} sx={{ pt: 4, pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <TextField
+            label="Email"
+            type="email"
+            required
+            fullWidth
+            size="small"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            sx={{
+              '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#ff8c00' },
+              '& .MuiOutlinedInput-root': {
+                color: '#fff',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' },
+                '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                '&.Mui-focused fieldset': { borderColor: '#ff8c00' },
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: '10px',
+              }
+            }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            required
+            fullWidth
+            size="small"
+            value={pw}
+            onChange={e => setPw(e.target.value)}
+            sx={{
+              '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#ff8c00' },
+              '& .MuiOutlinedInput-root': {
+                color: '#fff',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' },
+                '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                '&.Mui-focused fieldset': { borderColor: '#ff8c00' },
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: '10px',
+              }
+            }}
+          />
+          {err && <Alert severity="error" sx={{ py: 0.5, borderRadius: '8px' }}>{err}</Alert>}
+          <Button
+            type="submit"
+            disabled={busy}
+            variant="contained"
+            size="large"
+            sx={{
+              background: 'linear-gradient(135deg, #ff8c00 0%, #f52200 100%)',
+              color: '#fff',
+              mt: 1,
+              borderRadius: '10px',
+              boxShadow: '0 4px 15px rgba(245, 34, 0, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #ff9d24 0%, #ff3714 100%)',
+                boxShadow: '0 6px 22px rgba(245, 34, 0, 0.55)',
+              },
+            }}
+          >
+            {busy ? 'Signing in…' : 'Sign in'}
+          </Button>
+          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center', mt: 1 }}>
+            Admins are managed in the <code style={{ color: '#ff8c00', background: 'rgba(255, 255, 255, 0.05)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>admins</code> Supabase table
           </Typography>
         </CardContent>
       </Card>
@@ -251,7 +333,7 @@ function Sidenav({ page, setPage, user }) {
               <ListItemButton onClick={() => setPage(item.key)} sx={{
                 borderRadius: 1.5, py: 1.25,
                 background: active ? gradients.info : 'transparent',
-                boxShadow: active ? '0 4px 20px 0 rgba(26,115,232,.4)' : 'none',
+                boxShadow: active ? '0 4px 20px 0 rgba(245,34,0,.4)' : 'none',
                 '&:hover': { background: active ? gradients.info : 'rgba(255,255,255,0.1)' },
               }}>
                 <ListItemIcon sx={{ minWidth: 36, color: '#fff' }}>
@@ -493,8 +575,11 @@ function TopBar({ title, onSave, saving, dirty, savedAt, saveErr, onLogout, noti
       mb: 4,
     }}>
       <Toolbar disableGutters sx={{
-        background: '#fff', borderRadius: '12px',
-        boxShadow: '0 4px 20px 0 rgba(0,0,0,.05)',
+        background: 'rgba(18, 10, 34, 0.65)',
+        backdropFilter: 'blur(20px) saturate(1.8)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        borderRadius: '12px',
         minHeight: '56px !important', px: 2,
       }}>
         <Box sx={{ flex: 1 }}>
@@ -1143,6 +1228,52 @@ function ProductsCheckList({ products, selectedIds, onChange, single }) {
   )
 }
 
+// ── Marquee strip editor ────────────────────────────────────────────────────
+// Storefront Icon names available for marquee bullets (see components/Icon.jsx).
+const MARQUEE_ICONS = ['check', 'truck', 'shield', 'bolt', 'tag', 'gift', 'fire', 'star', 'spark', 'heart', 'code', 'download']
+
+function MarqueeEditor({ items, onChange }) {
+  const list = Array.isArray(items) ? items : []
+  const setItem = (i, patch) => onChange(list.map((it, idx) => idx === i ? { ...it, ...patch } : it))
+  const removeItem = (i) => onChange(list.filter((_, idx) => idx !== i))
+  const addItem = () => onChange([...list, { icon: 'check', text: '' }])
+  const move = (i, dir) => {
+    const j = i + dir
+    if (j < 0 || j >= list.length) return
+    const copy = [...list]
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    onChange(copy)
+  }
+  return (
+    <Box>
+      <Stack spacing={1.25}>
+        {list.map((it, i) => (
+          <Stack key={i} direction="row" spacing={1} alignItems="center">
+            <TextField select size="small" label="Icon" value={MARQUEE_ICONS.includes(it.icon) ? it.icon : 'check'}
+              onChange={e => setItem(i, { icon: e.target.value })} sx={{ width: 120, flexShrink: 0 }}>
+              {MARQUEE_ICONS.map(name => <MenuItem key={name} value={name}>{name}</MenuItem>)}
+            </TextField>
+            <TextField fullWidth size="small" label={`Message ${i + 1}`} value={it.text || ''}
+              onChange={e => setItem(i, { text: e.target.value })} placeholder="e.g. Free delivery over EGP 1,500" />
+            <IconButton size="small" onClick={() => move(i, -1)} disabled={i === 0} title="Move up">
+              <ArrowBackIcon fontSize="small" sx={{ transform: 'rotate(90deg)' }} />
+            </IconButton>
+            <IconButton size="small" onClick={() => move(i, 1)} disabled={i === list.length - 1} title="Move down">
+              <ArrowForwardIcon fontSize="small" sx={{ transform: 'rotate(90deg)' }} />
+            </IconButton>
+            <IconButton size="small" color="error" onClick={() => removeItem(i)} title="Remove">
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        ))}
+      </Stack>
+      <Button startIcon={<AddIcon />} onClick={addItem} sx={{ mt: 2 }} variant="outlined" size="small">
+        Add message
+      </Button>
+    </Box>
+  )
+}
+
 // ── Page: Sections ──────────────────────────────────────────────────────────
 function SectionsPage({ settings, setSettings }) {
   const shop = useShop()
@@ -1182,6 +1313,19 @@ function SectionsPage({ settings, setSettings }) {
             </Typography>
             <ProductsCheckList products={shop.products} selectedIds={s.featureBannerProductId} single
               onChange={id => update({ featureBannerProductId: id })} />
+          </PanelCard>
+        </Grid>
+        <Grid item xs={12}>
+          <PanelCard title="Marquee strip" color="info" icon={ViewCarouselIcon}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              The scrolling trust strip under the hero. Edit the messages and icons below.
+              Use the "Marquee strip" toggle above to show or hide it.
+            </Typography>
+            <MarqueeEditor
+              items={(settings.marqueeItems && settings.marqueeItems.length)
+                ? settings.marqueeItems
+                : DEFAULT_SETTINGS.marqueeItems}
+              onChange={items => setSettings({ ...settings, marqueeItems: items })} />
           </PanelCard>
         </Grid>
       </Grid>

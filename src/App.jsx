@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from 'react'
 import { ShopContext } from './context.js'
 import { platforms, genres, posts as staticPosts } from './data.js'
-import { fetchAllProducts, fetchBlogPosts, supabase } from './supabase.js'
+import { fetchAllProducts, fetchBlogPosts, fetchReviewStats, supabase } from './supabase.js'
 import { cacheGet, cacheSet, cacheClear } from './cache.js'
 import { loadSettings, DEFAULT_SETTINGS } from './settings.js'
 import Header from './components/Header.jsx'
@@ -150,9 +150,15 @@ export default function App() {
         }
       }
     }
-    // 2) Fetch fresh
-    return fetchAllProducts()
-      .then(data => {
+    // 2) Fetch fresh — products + real review stats, merged so cards/PDP show
+    //    the true average rating & count (no more fake numbers).
+    return Promise.all([fetchAllProducts(), fetchReviewStats().catch(() => ({}))])
+      .then(([rows, stats]) => {
+        const data = rows.map(p => ({
+          ...p,
+          rating: stats[p.id]?.rating ?? null,
+          reviews: stats[p.id]?.count ?? 0,
+        }))
         console.log('[Crazy Game] Loaded', data.length, 'products from Supabase (network)')
         if (data.length === 0) console.warn('[Crazy Game] Products table returned 0 rows — likely RLS blocking reads.')
         setAllProducts(data)
@@ -298,7 +304,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' })
   }
 
-  const addToCart = useCallback((id, isDigital = false, qty = 1, variant = null) => {
+  const addToCart = useCallback((id, isDigital = false, qty = 1, variant = null, opts = {}) => {
     const digitalItem = digital.find(d => String(d.id) === String(id))
     const actuallyDigital = isDigital || !!digitalItem
     const item = getItem(id, actuallyDigital)
@@ -308,7 +314,13 @@ export default function App() {
       push((item.title || 'Item') + ' is sold out')
       return
     }
-    if (!actuallyDigital && item.price === 0 && !variant) { push("Pre-order — we'll notify you!") }
+    // Block "coming soon" items (no price set) from being added — there's nothing
+    // to charge for yet. Variants with their own price are still allowed.
+    const effPrice = variant ? Number(variant.price) : Number(item.price)
+    if (!actuallyDigital && (!effPrice || effPrice <= 0)) {
+      push((item.title || 'This item') + ' is coming soon — not available to buy yet')
+      return
+    }
     setCart(c => {
       const key = (actuallyDigital ? 'd' : 'p') + id + (variant?.id ? ':v' + variant.id : '')
       const ex = c.find(l => l.key === key)
@@ -322,6 +334,9 @@ export default function App() {
       return [...c, { key, id, digital: actuallyDigital, qty: initialQty, variant: variant || null }]
     })
     push((item.title || 'Item') + (variant ? ' (' + variant.label + ')' : '') + ' added to cart')
+    // Pop the cart drawer open on add (unless the caller opts out, e.g. Buy-it-now
+    // which navigates straight to the cart page).
+    if (opts.openDrawer !== false) setCartOpen(true)
   }, [getItem, push, digital])
 
   const removeFromCart = (key) => setCart(c => c.filter(l => l.key !== key))
