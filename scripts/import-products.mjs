@@ -82,6 +82,34 @@ function mapTags(tagStr) {
   return tagStr.split(',').map(t => t.trim()).filter(c => c && c !== 'New')
 }
 
+// Strip HTML tags + decode common entities → clean text for meta descriptions.
+function stripHtml(s) {
+  return String(s || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+// SEO meta description: clean the merchant's short description, or build a
+// keyword-rich fallback so every product has a unique, non-empty description.
+function buildShortDescription(row, name, platform, type) {
+  const clean = stripHtml(row['Short description'])
+  if (clean) return clean
+  const kind = type === 'digital_code' ? 'digital code'
+    : type === 'console' ? 'console'
+    : type === 'accessory' ? 'accessory'
+    : 'game'
+  const platPart = platform && platform !== 'Other' ? ` for ${platform}` : ''
+  return `Buy ${name}${platPart} at Crazy Game — genuine ${kind}, fast delivery across Egypt with cash on delivery.`
+}
+
 async function downloadImage(url) {
   try {
     const res = await fetch(url, {
@@ -120,21 +148,26 @@ async function insertProduct(row, imageUrl) {
   const price = row['Regular price'] ? parseInt(row['Regular price']) : null
   const salePrice = row['Sale price'] ? parseInt(row['Sale price']) : null
   const cats = row['Categories'] || ''
+  const name = (row['Name'] || '').trim()
+  const platform = mapPlatform(cats, row['Brands'])
+  const type = mapProductType(cats)
 
   const { error } = await supabase.from('products').insert({
-    name: row['Name'],
-    short_description: row['Short description'] || null,
+    name,
+    // SEO meta description — cleaned of HTML, with a keyword-rich fallback.
+    short_description: buildShortDescription(row, name, platform, type),
     description: row['Description'] || null,
     in_stock: row['In stock?'] === '1',
     stock: row['Stock'] ? parseInt(row['Stock']) : null,
     price: salePrice || price,
     was: salePrice && price && salePrice < price ? price : null,
-    platform: mapPlatform(cats, row['Brands']),
-    product_type: mapProductType(cats),
+    platform,
+    product_type: type,
     categories: mapCategories(cats),
     tags: mapTags(row['Tags']),
     image_url: imageUrl,
     brand: row['Brands'] || null,
+    // slug is auto-generated (unique) by the products_slug_trigger — see scripts/slug-setup.sql
   })
   if (error) throw error
 }
